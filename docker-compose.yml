@@ -1,43 +1,41 @@
 services:
   database:
     image: postgres:17-alpine
-    container_name: example-user-auth__database
+    container_name: user-auth__database
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: example-user-auth
+      POSTGRES_DB: user-auth
     volumes:
-      - example-user-auth__volume:/var/lib/postgresql/data
+      - user-auth__volume:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - example-user-auth__network
-  
+      - user-auth__network
+
   backend:
     build:
       context: ./backend
-    container_name: example-user-auth__backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: user-auth__backend
     environment:
-      POSTGRESQL_URL: postgresql://postgres:root@database:5432/example-user-auth
+      POSTGRESQL_URL: postgresql://postgres:root@database:5432/user-auth
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: true
+    ports:
+      - 3003:3000
     depends_on:
       - database
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     networks:
-      - example-user-auth__network
-
-  frontend:
-    build:
-      context: ./frontend
-    container_name: example-user-auth__frontend
-    ports:
-      - 3000:80
-    depends_on:
-      - backend
-    networks:
-      - example-user-auth__network
-  
+      - user-auth__network
+                                                                                                                                                      
 volumes:
-  example-user-auth__volume:
+  user-auth__volume:
 
 networks:
-  example-user-auth__network:
+  user-auth__network:
     driver: bridge
