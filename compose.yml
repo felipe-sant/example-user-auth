@@ -4,12 +4,31 @@ services:
     container_name: user-auth__database
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: user-auth
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=user-auth
     volumes:
       - user-auth__volume:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - user-auth__network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: user-auth__frontend
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     networks:
       - user-auth__network
 
@@ -24,7 +43,7 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
     ports:
-      - 3003:3000
+      - 3001:3000
     depends_on:
       - database
     volumes:
@@ -32,7 +51,7 @@ services:
       - /app/node_modules
     networks:
       - user-auth__network
-                                                                                                                                                      
+
 volumes:
   user-auth__volume:
 
