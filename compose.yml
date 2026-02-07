@@ -20,9 +20,9 @@ services:
       target: dev
     container_name: user-auth__backend
     environment:
-      POSTGRESQL_URL: postgresql://postgres:root@database:5432/user-auth
-      NODE_ENV: development
-      CHOKIDAR_USEPOLLING: true
+      - POSTGRESQL_URL=postgresql://postgres:root@database:5432/user-auth
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
     ports:
       - 3003:3000
     depends_on:
